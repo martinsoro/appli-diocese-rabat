@@ -2,6 +2,10 @@ name: Construire l'APK
 
 on:
   push:
+    paths-ignore:
+      - 'backoffice/**'
+      - '.github/workflows/backoffice.yml'
+      - '**.md'
   workflow_dispatch:
 
 permissions:
