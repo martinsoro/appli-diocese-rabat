@@ -1,0 +1,54 @@
+name: Back-office (Hostinger)
+
+on:
+  push:
+    paths:
+      - 'backoffice/**'
+      - '.github/workflows/backoffice.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backoffice:
+    runs-on: ubuntu-latest
+    env:
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vérifier le PHP
+        run: for f in backoffice/*.php backoffice/inc/*.php; do php -l "$f"; done
+
+      - name: Préparer le fichier zip
+        run: cd backoffice && zip -r ../backoffice.zip . -x 'config.php' '*.sqlite'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backoffice
+          path: backoffice.zip
+
+      - name: Publier le zip en téléchargement
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: backoffice-${{ github.run_number }}
+          name: Back-office ${{ github.run_number }}
+          body: |
+            Back-office à installer sur Hostinger : décompressez backoffice.zip dans le dossier choisi (ex. public_html/admin), puis ouvrez install.php.
+          files: backoffice.zip
+          make_latest: false
+
+      - name: Mettre en ligne sur Hostinger (si l'accès FTP est configuré)
+        if: env.FTP_SERVER != ''
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./backoffice/
+          server-dir: ${{ secrets.FTP_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            config.php

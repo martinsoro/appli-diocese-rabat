@@ -1,0 +1,16 @@
+name: appli_diocese
+description: Application de l'Archidiocèse de Rabat (version de démonstration).
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  url_launcher: ^6.3.0
+  shared_preferences: ^2.3.0
+
+flutter:
+  uses-material-design: true
